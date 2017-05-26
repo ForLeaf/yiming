@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no">
+	<script src="../../libs/jquery/jquery-2.1.1.min.js"></script>
+    <script src="../../libs/common/global.js"></script>
+	<title>修改收货地址</title>
+
+	<link rel="stylesheet" type="text/css" href="../css/reset.css">
+	<link rel="stylesheet" type="text/css" href="../css/address_rem.css">
+	<link rel="stylesheet" type="text/css" href="../css/reg_log_base_rem.css">
+	<script type="text/javascript" src="../js/rem.js"></script>
+
+
+<script type="text/javascript">
+	$(function(){
+		var $dataid = window.localStorage.getItem('dataid',$dataid);
+	//获取地址，并提取出对应id的地址
+		$.post(erp.baseUrl +'getmyoption',{
+                    option : 'myaddress'
+                },function (response) {
+                    var arr = response;
+                    console.log(arr,JSON.stringify(arr));
+                    arr.map(function(item){
+                    	
+                    	if (item.dataid == $dataid) {
+                    		$('#provs').text(item.address);
+			                $('#input-name').val(item.username);
+			                $('#input-phone').val(item.elephone);
+			                $('#input-address').val(item.dtlAddress);
+                    	}
+                    })
+                });
+
+
+
+
+	//修改地址
+        $('#addresschangeBtn').click(function(event) {
+        	event.preventDefault();
+        	// console.log($('#provs').text() + $('#area').val(),$('#input-address').val());
+            var obj = {
+                address : $('#provs').text(),
+                username : $('#input-name').val(),
+                elephone : $('#input-phone').val(),
+                dtlAddress : $('#input-address').val()
+            };
+
+            //转字符串
+            var resObj = JSON.stringify(obj);
+            console.log(resObj,$dataid)
+            //var arr = ['myaddress','myorder','mycollection','mycart'];
+            $.post(erp.baseUrl +'setmyoption',{
+                    option : 'myaddress',
+                    dataid : $dataid,
+                    value : resObj
+                },function (response) {
+
+                });
+
+        });
+
+
+        $('.saveAdd').click(function(){
+
+        	location.href = "address_parent.html";
+
+        })
+
+
+
+
+	});
+</script>
+
+</head>
+<body>
+
+	<!--标题栏-->
+	<div class="container">
+		<header class="bar">
+        	<a href="address_parent.html" class="iconfont icon-fanhui lg"></a>
+        	<h1 class="title">编辑收货地址</h1>
+    	</header>
+	</div>
+    
+	<div class="person_data">
+		<ul>
+			<li>
+				<div class="item-input">
+	                <input type="text" placeholder="&nbsp;请填写收货人姓名" name="name" value="" id="input-name">
+	                <a href="#" id="cls_name" class="iconfont icon-x"></a>
+	            </div>
+			</li>
+			<li>
+				<div class="item-input">
+	                <input type="text" placeholder="&nbsp;请填写收货人手机号" name="phone" value="" id="input-phone">
+	                <a href="#" id="cls_phone" class="iconfont icon-x"></a>
+	            </div>
+			</li>
+			<li>
+				<div class="item-input">
+					<div class="areabox">
+						<span id="provs">广东省-广州市-</span>
+		                <!-- <select name="area" id="area">
+							<option value="天河区" selected>天河区</option>
+							<option value="越秀区">越秀区</option>
+							<option value="荔湾区">荔湾区</option>
+							<option value="海珠区">海珠区</option>
+							<option value="白云区">白云区</option>
+							<option value="黄埔区">黄埔区</option>
+							<option value="番禺区">番禺区</option>
+							<option value="花都区">花都区</option>
+							<option value="南沙区">南沙区</option>
+							<option value="萝岗区">萝岗区</option>
+							<option value="东山区">东山区</option>
+							<option value="增城市">增城市</option>
+							<option value="从化市">从化市</option>
+							<option value="其他区">其他区</option>
+						</select> -->
+					</div>
+	                
+	            </div>
+			</li>
+			<li>
+				<div class="item-input">
+	                <input type="textarea" placeholder="&nbsp;请填写收货人详细地址" name="address" value="" id="input-address">
+	                <a href="#" id="cls_address" class="iconfont icon-x"></a>
+	            </div>
+			</li>
+
+		</ul>
+
+		<div class="btn_Add">
+			<a href="#" class="saveAdd" id="addresschangeBtn">确认保存地址</a>
+		</div>
+
+		<i class="kefuImg"><img src="../img/kefu.jpg"></i>
+	</div>
+</body>
+</html>

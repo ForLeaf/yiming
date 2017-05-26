@@ -2,7 +2,29 @@ var mongodb = require('mongodb');
 
 var server = new mongodb.Server('localhost', 27017);
 
-var db = new mongodb.Db('foo', server);
+var db = new mongodb.Db('yiming', server);
+
+var search = function(_collection, reg, callback){
+	db.open(function (error,db) {
+		if(error){
+			console.log('connect db:',error);
+		}
+		db.collection(_collection,function (error,collection) {
+			if(error){
+				console.log(error);
+			}
+			collection.find({"goodstitle":{$regex:reg}}).toArray(function (err,docs) {
+				if(err){
+					console.log(err);
+				}
+				callback(docs);
+				db.close();
+            })
+        })
+		
+    })
+}
+
 
 var exists = function(_collection, data, arr, callback){
 	db.open(function(error, db){
@@ -12,7 +34,9 @@ var exists = function(_collection, data, arr, callback){
 		//Account => 集合名（表名）
 		var obj = {};
 		arr.forEach(function (ele) {
-			obj[ele] = data[ele]? data[ele] : '';
+			if(data[ele]){
+                obj[ele] = data[ele];
+			}
         });
 		
         db.collection(_collection, function(error, collection){
@@ -30,7 +54,7 @@ var exists = function(_collection, data, arr, callback){
 	})	
 };
 
-var save = function(_collection, data){
+var save = function(_collection, data, callback){
 	db.open(function(error, db){
 		if(error){
 			console.log('connect db:', error);
@@ -39,13 +63,80 @@ var save = function(_collection, data){
 		db.collection(_collection, function(error, collection){
 			if(error){
 				console.log(error)	
-			} else {
-				collection.insert(data);
 			}
-			db.close();
+			collection.find({username : data.username}).toArray(function (err,docs) {
+				if(err){
+					console.log('findErr:',err);
+				}
+				if(docs.length <= 0){
+                    collection.insert(data,function (err,res) {
+                        if(err){
+                            console.log('insert.err:',err);
+                        }
+						callback(true);
+                        db.close();
+                    });
+                    
+				}else{
+					callback(false);
+                    db.close();
+				}
+            })
 		})
 	})
 };
 
+var setdate = function (_collection, data, arr) {
+	
+	db.open(function (err,db) {
+		if(err){
+			console.log('db.open:',err);
+		}
+		db.collection(_collection,function (err,collection) {
+			if(err){
+				console.log(err);
+			}
+			collection.update(arr,{$set:data},true,true);
+			db.close();
+        })
+		
+    })
+}
+
+var pushdate = function (_collection, data, arr) {
+    
+    db.open(function (err,db) {
+        if(err){
+            console.log('db.open:',err);
+        }
+        db.collection(_collection,function (err,collection) {
+            if(err){
+                console.log(err);
+            }
+            collection.update(arr,{$push:data},true,true);
+            db.close();
+        })
+        
+    })
+}
+
+var remove = function (_collection, arr) {
+	db.open(function (err,db) {
+		if(err){
+			console.log(err);
+		}
+		db.collection(_collection,function (err,collection) {
+			if(err){
+				console.log(err);
+			}
+			collection.remove(arr);
+			db.close();
+        })
+    })
+}
 exports.exists = exists;
 exports.save = save;
+exports.setdate = setdate;
+exports.pushdate = pushdate;
+exports.remove = remove;
+exports.search = search;

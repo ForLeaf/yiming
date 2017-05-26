@@ -25,39 +25,196 @@ exports.Register = function(app){
 		saveUninitialized: true
 	}));
 
-
+	//登录api
 	app.post('/login', urlencodedParser, function(request, response){
-		db.exists('sert', request.body,['name','password'], function(data){
-			
-			if(data.length > 0){
-				request.session.name = request.body.name;
-				response.send(apiResult(true))
-                //console.log(request.session,request.body.name);
-			} else {
-				response.send(apiResult(false, '用户名错误'));
-			}
-		})
+		if(request.body.username && request.body.password){
+            db.exists('account', request.body,['username','password'], function(data){
+                
+                if(data.length > 0){
+                    request.session.name = request.body.username;
+                    response.send(apiResult(true));
+                    //console.log(request.session,request.body.name);
+                } else {
+                    response.send(apiResult(false, '用户名错误'));
+                }
+            })
+		}else{
+			response.send(apiResult(false, '请输入用户名'));
+		}
+		
 	});
-
-	app.get('/register', function(request, response){
-		response.send('account register');
+ 
+	//注册api
+	app.post('/register', urlencodedParser, function(request, response){
+		//console.log(request.body);
+		var data = request.body;
+		var obj = {
+			username : data.username,
+			password : data.password,
+			myorder : [],
+			myaddress : [],
+			mycollection : [],
+			mycart : []
+		};
+		db.save('account',obj,function (res) {
+			response.send(apiResult(res));
+        });
+		
 	});
-
+	
+	//获取选项
+	app.post('/getmyoption', urlencodedParser, function (request,response) {
+		
+		var option = request.body.option;
+		
+		var keyName = {};
+		keyName.username = request.session.name;
+        
+        db.exists('account', keyName,['username','password'], function(data){
+            if(data.length > 0){
+            	var arr = data[0][option];
+                response.send(arr);
+            } else {
+                response.send(apiResult(false, '用户名错误'));
+            }
+        })
+		
+    });
+    
+	//增加选项
+    app.post('/putmyoption', urlencodedParser, function (request,response) {
+        
+        var data = request.body;
+        var obj = {};
+        
+        for(var key in data){
+        	//判断是否JSON格式
+			var isjson = false;
+            try{
+                eval('(' + data[key] + ')');
+                isjson = true;
+            }
+            catch(e){
+                isjson = false;
+            }
+            //获取值 ..........
+        	obj[key] = isjson? JSON.parse(data[key]) : data[key];
+    
+            //增加识别字段
+			obj[key].dataid = Date.now();
+		}
+		
+        var keyName = {};
+        keyName.username = request.session.name;
+        
+        console.log(keyName,obj);
+        db.pushdate('account',obj,keyName);
+        response.send(apiResult(true));
+    });
+	
+    //修改选项
+    app.post('/setmyoption', urlencodedParser, function (request,response) {
+        var keyName = {};
+        keyName.username = request.session.name;
+    	
+        //default 对象
+		var def = {
+			option : '',
+			value : '',
+			dataid : ''
+		};
+		//获取request.body
+		def = Object.assign(def,request.body);
+		console.log('def:',def);
+		
+		if(typeof(JSON.parse(def.value)) == 'object'){
+			def.value = JSON.parse(def.value);
+		}
+        if(request.session.name){
+            db.exists('account', keyName,['username','password'], function(data){
+                if(data.length > 0){
+                    var arr = data[0][def.option];
+            
+                    //判断获取的arr是否Array;
+                    if(arr instanceof Array){
+                        for(var ele of arr){
+                            console.log('666:',ele.listid,def.value.listid);
+                            if(ele.dataid == def.dataid || ele.listid == def.value.listid){
+                                for(var key in def.value){
+                                    ele[key] = def.value[key];
+                                }
+                                break;
+                            }
+                        }
+                    }else{
+                        arr = def.value;
+                    }
+            
+                    var obj = {};
+                    obj[def.option] = arr;
+                    db.setdate('account',obj,keyName);
+            
+                    response.send(true);
+                } else {
+                    response.send(apiResult(false, '找不到数据'));
+                }
+            }.bind(db))
+		}else{
+        	response.send(apiResult(false, '用户未登录'))
+		}
+    
+    });
+    
+    //删除选项
+	app.post('/remove', urlencodedParser,function (request,response) {
+        var keyName = {};
+        keyName.username = request.session.name;
+        
+        //default 对象
+        var def = {
+            option : '',
+            dataid : ''
+        };
+        //获取request.body
+        def = Object.assign(def,request.body);
+        console.log('def:',def);
+		
+        if(request.session.name){
+            db.exists('account', keyName,['username','password'], function(data){
+                if(data.length > 0){
+                    var arr = data[0][def.option];
+            
+                    //判断获取的arr是否Array;
+                    if(arr instanceof Array){
+                    	arr.forEach(function (ele,idx) {
+							if(ele.dataid == def.dataid){
+								arr.splice(idx,1);
+							}
+                        })
+                    }else{
+                        arr = '';
+                    }
+                    var obj = {};
+                    obj[def.option] = arr;
+                    db.setdate('account',obj,keyName);
+                    response.send(true);
+                } else {
+                    response.send(apiResult(false, '找不到数据'));
+                }
+            }.bind(db))
+		}else{
+        	response.send(apiResult(false, '用户未登录'));
+		}
+    })
+	
 	app.get('/logout', function(request, response){
-		response.send('account logout');
+        request.session.name = null;
+        request.session.cookie = {maxAge: 0};
+        response.send(true);
 	});
 
 	app.get('/getsession', function(request, response){
 		response.send(apiResult(request.session.name != null, null, request.session.name));
 	});
-    
-   /* //设置跨域访问
-    app.all('*', function(req, res, next) {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "X-Requested-With");
-        res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
-        res.header("X-Powered-By",' 3.2.1')
-        res.header("Content-Type", "application/json;charset=utf-8");
-        next();
-    });*/
+	
 }
