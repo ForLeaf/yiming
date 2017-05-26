@@ -1,0 +1,98 @@
+
+.tab .title{
+	display: flex;
+	border-bottom: 1px solid #ddd;
+}
+.tab .title span{
+	flex:1;
+	text-align: center;
+	padding:7px 0;
+	font-size: 14px;
+}
+.active{
+	border-bottom: 2px solid #FF5609;
+	color:#FF5609;
+}
+
+.content .all ul{
+	display: flex;
+	flex-direction:column;
+	height: 180px;
+	border-bottom: 1px solid #ddd;
+	box-shadow: 0 0 10px #c8c8c8;
+}
+.content .all .lihead,
+.content .all .lifoot{
+	flex:1;
+	line-height: 50px;
+	background-color: #fff;
+	position: relative;
+}
+.content .all .lifoot{
+	flex:2;
+}
+.content .all .lihead{
+	padding-left: 10px;
+}
+.content .all .lihead .icon-wuxing{
+	color:#D02A2A;
+}
+.content .all .lihead .icon-jinru{
+	position: relative;
+	top:1px;
+}
+.content .all .lihead .status{
+	position: absolute;
+	right: 15px;
+	color: #FF5609;
+}
+.content .all .libody{
+	flex:3;
+	display: flex;
+}
+.content .all .libody .goodsImg{
+	width: 60px;
+	height: 100%;
+	flex:1;
+}
+.content .all .libody .goodsImg img{
+	width: 100%;
+	height: 100%;
+}
+
+.content .all .libody .goodsMsg{
+	flex:2;
+}
+.content .all .libody .goodsPrice{
+	flex:1;
+	padding-right:15px;
+}
+.content .all .libody .goodsPrice .price,
+.content .all .libody .goodsPrice .eq{
+	color: #D02A2A;
+	font-weight: bold;
+}
+
+.content .all .lifoot span{
+	position: absolute;
+	right: 15px;
+	top:-15px;
+	font-size: 12px;
+}
+.content .all .lifoot a{
+	display: inline-block;
+	height: 20px;
+	line-height: 16px;
+	border:1px solid #999;
+	border-radius: 3px;
+	padding:0 5px;
+	color: #000;
+	background-color: #f7f7f7;
+}
+.content .all .lifoot a:hover{
+	background-color: #999;
+	color: #fff;
+}
+.content .all .lifoot .alink{
+	top:5px;
+}

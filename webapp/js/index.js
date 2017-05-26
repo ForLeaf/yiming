@@ -2,23 +2,23 @@
 $(function(){
 	$('footer').load('html/footer.html',function(){
 		$('footer ul li:nth-child(1)').on('click',function(){
-			window.location.href='./index.html';
+			window.location.href='./index.html'
 		})
 
 		$('footer ul li:nth-child(2)').on('click',function(){
-			$('main').scrollTop('100')
+			$('main').scrollTop('300')
 		})
 
-		$('footer ul li:nth-child(3)').on('click',function(){
-			window.location.href='./car.html'
-		})
+        $('footer ul li:nth-child(3)').on('click',function(){
+            window.location.href='./car.html'
+        })
 
-		$('footer ul li:nth-child(4)').on('click',function(){
-			window.location.href='./html/personal_rem.html';
-		})
-
+        $('footer ul li:nth-child(4)').on('click',function(){
+            window.location.href='./html/personal_rem.html';
+        })
 
 	});
+	
 	$('.carousel').on('mouseenter',function(){
 		$(this).find('.carousel-control').show();
 	})
@@ -119,5 +119,13 @@ $(function(){
            var encodeparam = encodeURI($(this).prev().val());
       	window.location.href='./html/search.html'+'?keyword='+encodeparam;
       });
+
+	//滑动效果
+	var myTouch = util.toucher(document.getElementById('carousel-example-generic')); 
+		myTouch.on('swipeLeft',function(e){ 
+		$('#carright').click(); 
+		}).on('swipeRight',function(e){ 
+		$('#carleft').click(); 
+		}); 
   
 })

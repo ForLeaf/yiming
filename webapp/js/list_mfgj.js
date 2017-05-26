@@ -16,7 +16,27 @@ $(function(){
         })  
     })
     });
-	$('footer').load('../html/footer.html');
+	$('footer').load('../html/footer.html',function(){
+          $('footer ul li:nth-child(1)').on('click',function(){
+            window.location.href='../index.html';
+        })
+
+        $('footer ul li:nth-child(2)').on('click',function(){
+            $('main').scrollTop('100')
+        })
+
+        $('footer ul li:nth-child(3)').on('click',function(){
+            window.location.href='../car.html'
+        })
+
+        $('footer ul li:nth-child(4)').on('click',function(){
+            window.location.href='../html/personal_rem.html';
+        })
+
+
+
+        
+    });
 
     
     
